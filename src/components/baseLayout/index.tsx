@@ -1,7 +1,8 @@
 import {Breadcrumb, ConfigProvider, Divider, Layout, Menu, theme} from 'antd'
 const { Header, Footer, Sider, Content } = Layout;
 import { Outlet, To, useLocation, useNavigate } from 'react-router-dom'
-import {useState} from "react";
+import { MENU_ITEMS } from "@/router/menu-item.tsx";
+import React, {useState} from "react";
 
 const footerStyle: React.CSSProperties = {
     textAlign: 'center',
@@ -11,10 +12,19 @@ const footerStyle: React.CSSProperties = {
 
 
 const BaseLayout = () => {
+    const navigate = useNavigate()
+    const location = useLocation()
     const [collapsed, setCollapsed] = useState(false)
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken()
+    const handleMenuClick = (event: { key: To }) => {
+        // console.log('点击菜单', event.key)
+        // console.log(window.location)
+        const params = new URLSearchParams(window.location.search)
+        // console.log(params.get('id'))
+        navigate(event.key, {})
+    }
     return (
         <ConfigProvider
             theme={{
@@ -54,6 +64,15 @@ const BaseLayout = () => {
                     <div className="flex h-auto items-center justify-center p-2 text-xl">
                         {!collapsed ? 'Nahida System' : ''}
                     </div>
+                    <Menu
+                        theme="dark"
+                        defaultOpenKeys={[location.pathname.split('/')[1]]}
+                        defaultSelectedKeys={['/']}
+                        selectedKeys={[location.pathname]}
+                        mode="inline"
+                        items={MENU_ITEMS}
+                        onClick={handleMenuClick}
+                    />
                 </Sider>
                 <Layout className="bg-white">
                     {/*<Header style={headerStyle}>Header</Header>*/}
