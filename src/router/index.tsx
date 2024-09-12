@@ -4,7 +4,7 @@ import BaseLayout from "@/components/baseLayout";
 export const router = ({ routePrefix }: { routePrefix?: string }) => createBrowserRouter(
     [
         {
-            path: '',
+            path: '/',
             element: <BaseLayout />,
             children: [
                 {
@@ -13,6 +13,24 @@ export const router = ({ routePrefix }: { routePrefix?: string }) => createBrows
                     async lazy() {
                         return {
                             Component: (await import('@/pages/GithubSentinel')).default,
+                        }
+                    },
+                },
+                {
+                    index: true,
+                    path: '/',
+                    async lazy() {
+                        return {
+                            Component: (await import('@/pages/GithubSentinel')).default,
+                        }
+                    },
+                },
+                {
+                    index: true,
+                    path: 'tagging',
+                    async lazy() {
+                        return {
+                            Component: (await import('@/pages/Tagging')).default,
                         }
                     },
                 }

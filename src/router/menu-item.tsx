@@ -1,4 +1,4 @@
-import { HomeOutlined } from '@ant-design/icons'
+import { HomeOutlined, CoffeeOutlined } from '@ant-design/icons'
 
 interface MenuItem {
     key: string
@@ -15,6 +15,12 @@ export const MENU_ITEMS: MenuItem[] = [
         key: '/',
         label: 'HOME',
         icon: <HomeOutlined />,
+        minRole: 1,
+    },
+    {
+        key: '/tagging',
+        label: '打标签',
+        icon: <CoffeeOutlined />,
         minRole: 1,
     }
 ]
