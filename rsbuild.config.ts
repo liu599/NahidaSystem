@@ -34,5 +34,10 @@ export default defineConfig({
       BUILD_ENV: `${BUILD_ENV}`,
     },
   },
+  server: {
+    proxy: {
+      '/napi-prod/llm': 'http://127.0.0.1:8991',
+    },
+  },
   plugins: [pluginReact()],
 });

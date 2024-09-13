@@ -1,4 +1,6 @@
 import {Button, Col, Divider, Form, Row, Select, Space, Typography} from 'antd';
+import {useEffect} from "react";
+import {getTaggingSetting} from "@/pages/TaggingSetting/api.ts";
 const { Title, Paragraph, Text, Link } = Typography;
 
 const formItemLayout = {
@@ -63,6 +65,8 @@ const Tagging =  () => {
     const onFill = () => {
         form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
     };
+
+
 
     for (let i = 0; i < data.length; i += chunkSize) {
         const chunk = data.slice(i, i + chunkSize);

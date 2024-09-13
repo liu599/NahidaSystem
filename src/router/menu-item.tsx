@@ -4,23 +4,38 @@ interface MenuItem {
     key: string
     label: string
     icon?: Element
-    children?: MenuItem[]
+    children?: MenuItem[] | undefined
     minRole?: number // Add the minRole property
 }
 
 type Role = number
 
-export const MENU_ITEMS: MenuItem[] = [
+export const MENU_ITEMS: ({ minRole: number; children: any[]; icon: JSX.Element; label: string; key: string } | {
+    minRole: number;
+    children: MenuItem[] | undefined;
+    icon: JSX.Element;
+    label: string;
+    key: string
+})[] = [
     {
         key: '/',
-        label: 'HOME',
+        label: '打标签配置',
         icon: <HomeOutlined />,
+        children: undefined,
         minRole: 1,
     },
     {
         key: '/tagging',
         label: '打标签',
         icon: <CoffeeOutlined />,
+        children: undefined,
+        minRole: 1,
+    },
+    {
+        key: '/agent-hub',
+        label: '大模型agent',
+        icon: <CoffeeOutlined />,
+        children: undefined,
         minRole: 1,
     }
 ]

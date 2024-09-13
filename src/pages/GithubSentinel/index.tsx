@@ -52,7 +52,7 @@ const GithubSentinelPage =  () => {
     return (
         <>
             <Row>
-                <Col span={6}>
+                <Col span={10} style={{marginRight: "60px"}}>
                     <Title level={2} style={{marginBottom: "32px"}}>订阅配置</Title>
 
                     <Space>
@@ -61,7 +61,7 @@ const GithubSentinelPage =  () => {
                             form={form}
                             onFinish={onFinish}
                             labelAlign={"left"}
-                            style={{ maxWidth: '100%', width: '640px' }}
+                            style={{ width: '640px' }}
                         >
                             <Form.Item label="基础大模型">
                                 <Radio.Group onChange={onChange} value={value}>
@@ -118,7 +118,7 @@ const GithubSentinelPage =  () => {
 
                     </Space>
                 </Col>
-                <Col span={18} style={{borderLeft: "4px solid red", padding: "24px"}}>
+                <Col span={10} style={{borderLeft: "4px solid red", padding: "24px"}}>
                     <Title level={2}>Ollma项目进展</Title>
                     <Space>
                         <Text type="secondary">时间周期: 2024-08-14至2024-08-21 ·</Text>

@@ -12,13 +12,22 @@ export const router = ({ routePrefix }: { routePrefix?: string }) => createBrows
                     path: '',
                     async lazy() {
                         return {
-                            Component: (await import('@/pages/GithubSentinel')).default,
+                            Component: (await import('@/pages/TaggingSetting')).default,
                         }
                     },
                 },
                 {
                     index: true,
                     path: '/',
+                    async lazy() {
+                        return {
+                            Component: (await import('@/pages/TaggingSetting')).default,
+                        }
+                    },
+                },
+                {
+                    index: true,
+                    path: 'agent-hub',
                     async lazy() {
                         return {
                             Component: (await import('@/pages/GithubSentinel')).default,
