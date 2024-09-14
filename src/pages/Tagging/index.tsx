@@ -1,167 +1,212 @@
-import {Button, Col, Divider, Form, Row, Select, Space, Typography} from 'antd';
-import {useEffect} from "react";
-import {getTaggingSetting} from "@/pages/TaggingSetting/api.ts";
-const { Title, Paragraph, Text, Link } = Typography;
+import {getTaggingSetting} from '@/service/api'
+import {ActionType, ProColumns, ProTable, TableDropdown} from '@ant-design/pro-components'
+import {ArrayItems, DatePicker, Editable, FormItem, Input, Radio, Select, Space, Switch,} from '@formily/antd-v5'
+import {createSchemaField} from '@formily/react'
+import {useEffect, useRef, useState} from 'react'
 
-const formItemLayout = {
-    labelCol: { span: 4 },
-    wrapperCol: { span: 16 },
-};
-
-const data = [
-    {
-        label: "标签组1",
-        type: "multiple",
-        options: [
-            {
-                value: "标签1",
-                label: <span>标签1</span>
-            },
-            {
-                value: "标签2",
-                label: <span>标签2</span>
-            }
-        ]
+const SchemaField = createSchemaField({
+    components: {
+        FormItem,
+        Editable,
+        DatePicker,
+        Space,
+        Radio,
+        Input,
+        Select,
+        ArrayItems,
+        Switch,
     },
-    {
-        label: "标签组2",
-        type: "multiple",
-        options: [
-            {
-                value: "标签3",
-                label: <span>标签3</span>
-            },
-            {
-                value: "标签4",
-                label: <span>标签4</span>
-            }
-        ]
-    },
-    {
-        label: "标签组3",
-        type: "single",
-        options: [
-            {
-                value: "标签5",
-                label: <span>标签5</span>
-            },
-            {
-                value: "标签6",
-                label: <span>标签6</span>
-            }
-        ]
-    }
-]
+})
 
-const Tagging =  () => {
-    const [form] = Form.useForm();
-    const chunkSize = 2; // 每行两个元素
-    const chunks = [];
+export type TaggingTaskItem = {
+    createdAt: number
+    taskStatus: string
+    waiting: string
+    total: string
+    completed: string
+    option: string
+    suiteId: number
+    taskId: number
+    taskName: string
+    id: number
+}
 
-    const onReset = () => {
-        form.resetFields();
-    };
+const DataTagging = () => {
+    const [loading, setLoading] = useState(false)
+    const [showDetail, setShowDetail] = useState<boolean>(false)
+    const actionRef = useRef<ActionType>()
+    const [currentRow, setCurrentRow] = useState<any>()
+    const [taggingTasks, setTaggingTasks] = useState([])
+    const columnsDef: ProColumns<TaggingTaskItem>[] = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            // valueType: 'indexBorder',
+            width: 48,
+        },
+        {
+            title: '标注任务名称',
+            dataIndex: 'taskName',
+            // valueType: 'indexBorder',
+            width: 120,
+        },
+        {
+            title: '标注任务状态',
+            dataIndex: 'taskStatus',
+            // valueType: 'indexBorder',
+            width: 120,
+        },
+        {
+            title: '测试集ID',
+            dataIndex: 'suiteId',
+            // valueType: 'indexBorder',
+            width: 120,
+        },
+        {
+            title: '大模型任务ID',
+            dataIndex: 'taskId',
+            // valueType: 'indexBorder',
+            width: 120,
+        },
+        {
+            title: '完成数量',
+            dataIndex: 'waiting',
+            tooltip: '红色: 未完成, 绿色: 已完成, 黑色: 总数',
+            // valueType: 'indexBorder',
+            hideInSearch: true,
+            width: 120,
+            render: (_, entity) => (
+              <Space>
+                  <span style={{color: "red", fontWeight: 700}}>{entity.waiting}</span> |
+                  <span style={{color: "green", fontWeight: 700}}>{entity.completed}</span> |
+                  <span style={{fontWeight: 700}}>{entity.total}</span>
+              </Space>
+            )
+        },
+        {
+            title: '操作',
+            width: 180,
+            key: 'option',
+            valueType: 'option',
+            render: (_, entity) => [
+                <a
+                  key="link"
+                  onClick={() => {
+                      setCurrentRow(entity)
+                      setShowDetail(true)
+                  }}
+                >
+                    更新
+                </a>,
+                <a key="link2">停止</a>,
+                <a key="link3">复制</a>,
+                <TableDropdown
+                  key="actionGroup"
+                  menus={[
+                    { key: 'copy', name: '复制' },
+                  ]}
+                />,
+            ],
+        },
+    ]
 
-    const onFill = () => {
-        form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
-    };
+    useEffect(() => {
+        getTaggingSetting({}, 1, 1000).then((res) => {
+            console.log(res)
+            setTaggingTasks(res.data?.data)
+        })
+    }, [])
 
-
-
-    for (let i = 0; i < data.length; i += chunkSize) {
-        const chunk = data.slice(i, i + chunkSize);
-        chunks.push(
-            <Row key={`row-${i}`}>
-                {chunk.map((item, index) => (
-                    <Col span={12} key={`item-${index}`}>
-                        <Form.Item
-                            name={`item-${index}-${i}`}
-                            label={item.label}
-                            rules={[{ required: true, message: '数据校验失败, 请打标签', type: item.type === 'single' ? 'string' : 'array' }]}
-                        >
-                            <Select
-                                mode={item.type === 'single' ? undefined : 'tags'}
-                                options={item.options}
-                                placeholder="请选择标签"
-                            />
-                        </Form.Item>
-                    </Col>
-                ))}
-            </Row>
-        );
-    }
 
     return (
-        <div style={{maxWidth: "1280px", margin: "0 auto"}}>
-            <Divider orientation="left" orientationMargin="0" style={{  borderColor: '#7cb305' }}>
-                待标注内容
-            </Divider>
-            <Row style={{marginBottom: "32px", minHeight: "300px", padding: "24px"}}>
-                <Col span={24}>
-                    <Typography>
-                        <Text type="secondary">第 1 / 300 个问题</Text>
-                        <Title level={3}>问题</Title>
-                        <Paragraph>
-                            In the process of internal desktop applications development, many different design specs and
-                            implementations would be involved, which might cause designers and developers difficulties and
-                            duplication and reduce the efficiency of development.
-                        </Paragraph>
-                        <Title level={3}>期望回答</Title>
-                        <Paragraph>
-                            After massive project practice and summaries, Ant Design, a design language for background
-                            applications, is refined by Ant UED Team, which aims to{' '}
-                            <Text strong>
-                                uniform the user interface specs for internal background projects, lower the unnecessary
-                                cost of design differences and implementation and liberate the resources of design and
-                                front-end development
-                            </Text>
-                            .
-                        </Paragraph>
-                    </Typography>
-                </Col>
-            </Row>
-            <Divider orientation="left" orientationMargin="0" style={{  borderColor: '#7cb305', marginBottom: "32px" }}>
-                标注选项
-            </Divider>
-            <Form
-                name="validate_other"
-                {...formItemLayout}
-                form={form}
-                style={{ maxWidth: '100%', width: '100%', marginBottom: '60px' }}
-            >
-                {
-                    chunks
-                }
-            </Form>
-            <Divider orientation="left" orientationMargin="0" style={{  borderColor: '#7cb305' }}>
-                操作区
-            </Divider>
-            <Row style={{textAlign: "center"}}>
-                <Col span={24}>
-                    <Space size="large">
-                        <Button htmlType="button" onClick={onReset} danger size="large">
-                            重置
-                        </Button>
-                        <Button type="primary" htmlType="submit" size="large">
-                            上一条数据
-                        </Button>
-                        <Button type="primary" htmlType="submit" size="large">
-                            下一条数据
-                        </Button>
-                        <Button type="link" htmlType="button" onClick={onFill} size="large">
-                            (智能填充)
-                        </Button>
-                    </Space>
-                </Col>
-            </Row>
+      <div>
+          <ProTable<TaggingTaskItem>
+            actionRef={actionRef}
+            columns={columnsDef}
+            request={(params, sorter, filter) => {
+                // 表单搜索项会从 params 传入，传递给后端接口。
+                console.log(params, sorter, filter)
+                // if (params && params['planStatus'] == 'offline') {
+                //     // @ts-ignore
+                //     params.enabled = 0
+                // } else if (params && params['planStatus'] == 'online') {
+                //     params.enabled = 1
+                // }
+                // if (params?.projectStr) {
+                //     params['project_id'] = params?.projectStr
+                // }
+                // if (params && params['name']) {
+                //     params['task_group_name'] = params['name']
+                // }
+                // Object.keys(params).forEach((k) => {
+                //     if (!params[k]) {
+                //         delete params[k]
+                //     }
+                // })
+                //
+                return getTaggingSetting(params, params?.current,
+                  20).then((r) => {
+                    const response_data = r.data.data
+                    response_data.forEach((item: any) => {
+                        item.key = item.id
+                    })
+                    console.log(response_data, 'item data')
+                    return {
+                        data: response_data,
+                        success: true,
+                        total: r.data.pager.total,
+                    }
+                })
+            }}
+            rowKey="key"
+            pagination={{
+                showQuickJumper: true,
+            }}
+            search={{
+                layout: 'vertical',
+                defaultCollapsed: true,
+            }}
+            dateFormatter="string"
+            toolbar={{
+                title: '标注任务',
+                // tooltip: '测试计划',
+            }}
+            toolBarRender={(_, rows) => [
+                // <Button key="show">查看日志</Button>,
+                // <Button type="primary" key="primary" onClick={(e) => setShowDetail(true)}>
+                //     创建标注任务
+                // </Button>,
 
-
-        </div>
+                // <Dropdown
+                //   key="menu"
+                //   menu={{
+                //     items: [
+                //       {
+                //         label: '1st item',
+                //         key: '1',
+                //         onClick: (data) => {
+                //           console.log(data)
+                //         },
+                //       },
+                //       {
+                //         label: '2nd item',
+                //         key: '2',
+                //       },
+                //       {
+                //         label: '3rd item',
+                //         key: '3',
+                //       },
+                //     ],
+                //   }}
+                // >
+                //   <Button>
+                //     <EllipsisOutlined />
+                //   </Button>
+                // </Dropdown>,
+            ]}
+          />
+      </div>
     )
 }
 
-export default () => {
-    return (
-        <Tagging/>
-    )
-}
+export default DataTagging

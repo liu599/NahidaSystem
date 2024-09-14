@@ -42,7 +42,7 @@ const BaseLayout = () => {
                     // colorPrimary: '#00b96b',
                     // borderRadius: 2,
                     // 派生变量，影响范围小
-                    colorBgContainer: '#f6ffed',
+                    // colorBgContainer: '#f6ffed',
                     fontSize: 14,
                 },
             }}
@@ -80,10 +80,12 @@ const BaseLayout = () => {
                     <Content className="m-4">
                         <div
                             className="p-6"
+                            style={{padding: '24px'}}
                         >
                             <Outlet />
                         </div>
                     </Content>
+
                     <Footer style={footerStyle}>
                         Nahida System for LLM ©{new Date().getFullYear()} Created by Tokei.
                         <span>

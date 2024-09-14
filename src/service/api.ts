@@ -1,4 +1,4 @@
-import CustomAxios from "@/service";
+import CustomAxios from "@/service/index.tsx";
 export const customAxios = new CustomAxios({
   baseURL: '/',
   timeout: 20000,
@@ -7,9 +7,9 @@ export const customAxios = new CustomAxios({
 export const customRequest = customAxios.instance
 
 export async function getTaggingSetting(
-    filter: object = {},
-    pageNumber: number,
-    pageSize: number,
+  filter: object = {},
+  pageNumber: number | undefined,
+  pageSize: number,
 ){
   return await customRequest.post('/napi-prod/llm/source_search', {
     sourceType: 'tagging',

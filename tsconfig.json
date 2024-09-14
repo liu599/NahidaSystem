@@ -15,7 +15,8 @@
       "@/*": ["./src/*"],
       "public/*": ["./public/*"]
     },
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
 }

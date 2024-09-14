@@ -12,7 +12,7 @@ export const router = ({ routePrefix }: { routePrefix?: string }) => createBrows
                     path: '',
                     async lazy() {
                         return {
-                            Component: (await import('@/pages/TaggingSetting')).default,
+                            Component: (await import('@/pages/Tagging')).default,
                         }
                     },
                 },
@@ -21,7 +21,7 @@ export const router = ({ routePrefix }: { routePrefix?: string }) => createBrows
                     path: '/',
                     async lazy() {
                         return {
-                            Component: (await import('@/pages/TaggingSetting')).default,
+                            Component: (await import('@/pages/Tagging')).default,
                         }
                     },
                 },
@@ -40,6 +40,24 @@ export const router = ({ routePrefix }: { routePrefix?: string }) => createBrows
                     async lazy() {
                         return {
                             Component: (await import('@/pages/Tagging')).default,
+                        }
+                    },
+                },
+                {
+                    index: true,
+                    path: 'taggingSetting',
+                    async lazy() {
+                        return {
+                            Component: (await import('@/pages/TaggingSetting')).default,
+                        }
+                    },
+                },
+                {
+                    index: true,
+                    path: 'taggingDetail',
+                    async lazy() {
+                        return {
+                            Component: (await import('@/pages/TaggingDetail')).default,
                         }
                     },
                 }

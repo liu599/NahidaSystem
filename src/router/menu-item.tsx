@@ -19,14 +19,21 @@ export const MENU_ITEMS: ({ minRole: number; children: any[]; icon: JSX.Element;
 })[] = [
     {
         key: '/',
-        label: '打标签配置',
+        label: '标注任务管理',
         icon: <HomeOutlined />,
         children: undefined,
         minRole: 1,
     },
     {
-        key: '/tagging',
-        label: '打标签',
+        key: '/taggingSetting',
+        label: '标注任务配置',
+        icon: <CoffeeOutlined />,
+        children: undefined,
+        minRole: 1,
+    },
+    {
+        key: '/taggingDetail',
+        label: '标注任务',
         icon: <CoffeeOutlined />,
         children: undefined,
         minRole: 1,
