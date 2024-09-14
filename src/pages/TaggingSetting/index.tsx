@@ -12,7 +12,7 @@ import {
   NumberPicker,
   Password,
   PreviewText,
-  Select, Submit,
+  Select, Submit, Space,
   Switch,
   TimePicker,
   Upload,
@@ -37,6 +37,7 @@ const SchemaField = createSchemaField({
     ArrayItems,
     Editable,
     Switch,
+    Space,
     PreviewText,
     NumberPicker,
     Password,
@@ -90,6 +91,9 @@ export default () => {
       <Divider className="my-4"/>
       <FormProvider form={form} onAutoSubmit={console.log}>
         <SchemaField schema={schema}/>
+        <FormButtonGroup>
+          <Submit onSubmit={console.log}>Submit</Submit>
+        </FormButtonGroup>
       </FormProvider>
     </div>
   )
