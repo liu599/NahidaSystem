@@ -4,6 +4,23 @@ import BaseLayout from "@/components/baseLayout";
 export const router = ({ routePrefix }: { routePrefix?: string }) => createBrowserRouter(
     [
         {
+            path: 'taggingSetting',
+            async lazy() {
+                return {
+                    Component: (await import('@/pages/TaggingSetting')).default,
+                }
+            },
+        },
+        {
+            index: true,
+            path: 'taggingDetail',
+            async lazy() {
+                return {
+                    Component: (await import('@/pages/TaggingDetail')).default,
+                }
+            },
+        },
+        {
             path: '/',
             element: <BaseLayout />,
             children: [
@@ -45,22 +62,13 @@ export const router = ({ routePrefix }: { routePrefix?: string }) => createBrows
                 },
                 {
                     index: true,
-                    path: 'taggingSetting',
-                    async lazy() {
-                        return {
-                            Component: (await import('@/pages/TaggingSetting')).default,
-                        }
-                    },
-                },
-                {
-                    index: true,
                     path: 'taggingDetail',
                     async lazy() {
                         return {
                             Component: (await import('@/pages/TaggingDetail')).default,
                         }
                     },
-                }
+                },
             ]
         }
     ],

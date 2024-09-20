@@ -10,20 +10,6 @@ export const schema: ISchema = {
         maxColumns: 2
       },
       properties: {
-        taggingTaskName: {
-          type: 'string',
-          title: '标注任务名称',
-          'x-decorator': 'FormItem',
-          'x-component': 'Input',
-          'x-validator': [{ required: true, message: '请输入计划名称' }],
-        },
-        numberOfPeople: {
-          type: 'string',
-          title: '标注人数',
-          'x-decorator': 'FormItem',
-          'x-component': 'NumberPicker',
-          required: true,
-        },
         suiteId: {
           type: 'string',
           title: '待标注测试集',
@@ -38,9 +24,23 @@ export const schema: ISchema = {
           'x-component': 'Input',
           'x-validator': [{ required: true, message: '请输入计划名称' }],
         },
+        taggingTaskName: {
+          type: 'string',
+          title: '标注任务名称',
+          'x-decorator': 'FormItem',
+          'x-component': 'Input',
+          'x-validator': [{ required: true, message: '请输入计划名称' }],
+        },
+        numberOfPerson: {
+          type: 'string',
+          title: '标注人数',
+          'x-decorator': 'FormItem',
+          'x-component': 'NumberPicker',
+          required: true,
+        },
       }
     },
-    array: {
+    option: {
       type: 'array',
       'x-component': 'ArrayItems',
       'x-decorator': 'FormItem',
@@ -63,14 +63,7 @@ export const schema: ISchema = {
               },
             },
           },
-          planName: {
-            type: 'string',
-            title: '组名称',
-            'x-decorator': 'FormItem',
-            'x-component': 'Input',
-            'x-validator': [{ required: true, message: '请输入计划名称' }],
-          },
-          suiteId: {
+          tagId: {
             type: 'string',
             title: '标签范围',
             enum: [
@@ -79,41 +72,29 @@ export const schema: ISchema = {
               { label: '旅医项目配置', value: 3 },
               { label: '验证测试集', value: 4 },
             ],
+            'x-validator': [{ required: true, message: '标签组选择范围' }],
             'x-decorator': 'FormItem',
-            'x-component': 'Select',
+            'x-component': 'Cascader',
             'x-component-props': {
+              expandTrigger: 'hover',
+              allowClear: true,
+              maxTagTextLength: 12,
+              showSearch: true,
+              multiple: true,
               style: {
                 width: 240,
               },
             },
           },
-          multiple: {
+          tagGroupName: {
             type: 'string',
-            title: '允许选父标签',
-            enum: [
-              { label: '是', value: 1 },
-              { label: '否', value: 2 },
-            ],
+            title: '展示组名称',
+            'x-validator': [{ required: true, message: '请输入组名' }],
             'x-decorator': 'FormItem',
-            'x-component': 'Select',
+            'x-component': 'Input',
             'x-component-props': {
               style: {
-                width: 80,
-              },
-            },
-          },
-          rootTag: {
-            type: 'string',
-            title: '允许多标签',
-            enum: [
-              { label: '是', value: 1 },
-              { label: '否', value: 2 },
-            ],
-            'x-decorator': 'FormItem',
-            'x-component': 'Select',
-            'x-component-props': {
-              style: {
-                width: 80,
+                width: 240,
               },
             },
           },

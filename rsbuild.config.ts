@@ -1,7 +1,7 @@
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 // @ts-ignore
-const APP_VERSION = '♥' + require('./package.json').version
+const APP_VERSION = '' + require('./package.json').version
 console.log(APP_VERSION)
 // @ts-ignore
 const now = new Date()

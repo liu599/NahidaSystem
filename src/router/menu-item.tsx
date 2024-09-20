@@ -25,15 +25,8 @@ export const MENU_ITEMS: ({ minRole: number; children: any[]; icon: JSX.Element;
         minRole: 1,
     },
     {
-        key: '/taggingSetting',
-        label: '标注任务配置',
-        icon: <CoffeeOutlined />,
-        children: undefined,
-        minRole: 1,
-    },
-    {
         key: '/taggingDetail',
-        label: '标注任务',
+        label: '标注任务详情',
         icon: <CoffeeOutlined />,
         children: undefined,
         minRole: 1,

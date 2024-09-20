@@ -3,6 +3,7 @@ import {ActionType, ProColumns, ProTable, TableDropdown} from '@ant-design/pro-c
 import {ArrayItems, DatePicker, Editable, FormItem, Input, Radio, Select, Space, Switch,} from '@formily/antd-v5'
 import {createSchemaField} from '@formily/react'
 import {useEffect, useRef, useState} from 'react'
+import {Progress, Tag, Tooltip} from "antd";
 
 const SchemaField = createSchemaField({
     components: {
@@ -31,6 +32,12 @@ export type TaggingTaskItem = {
     id: number
 }
 
+const colorTagMapping = {
+    '等待标注': '#108ee9',
+    '标注进行中': 'geekblue',
+    '标注完成': '#87d068'
+}
+
 const DataTagging = () => {
     const [loading, setLoading] = useState(false)
     const [showDetail, setShowDetail] = useState<boolean>(false)
@@ -55,32 +62,43 @@ const DataTagging = () => {
             dataIndex: 'taskStatus',
             // valueType: 'indexBorder',
             width: 120,
+            render: (_, entity) => (
+              <Tag color={colorTagMapping[entity.taskStatus]}>{entity.taskStatus}</Tag>
+            )
         },
         {
             title: '测试集ID',
             dataIndex: 'suiteId',
+            tooltip: '括号内为待标注的总数量',
             // valueType: 'indexBorder',
             width: 120,
+            render: (_, entity) => (
+              <p>
+                  {
+                      entity.taskId === 0 ? <span>{entity.suiteId}({entity.total})</span> : <span>
+                          测试集: {entity.suiteId}({entity.total})
+                          测试任务: {entity.taskId}
+                      </span>
+                  }
+              </p>
+            )
         },
         {
-            title: '大模型任务ID',
-            dataIndex: 'taskId',
-            // valueType: 'indexBorder',
-            width: 120,
-        },
-        {
-            title: '完成数量',
+            title: '标注进度',
             dataIndex: 'waiting',
-            tooltip: '红色: 未完成, 绿色: 已完成, 黑色: 总数',
+            tooltip: '悬浮可以查看进度',
             // valueType: 'indexBorder',
             hideInSearch: true,
             width: 120,
             render: (_, entity) => (
-              <Space>
-                  <span style={{color: "red", fontWeight: 700}}>{entity.waiting}</span> |
-                  <span style={{color: "green", fontWeight: 700}}>{entity.completed}</span> |
-                  <span style={{fontWeight: 700}}>{entity.total}</span>
-              </Space>
+              <Tooltip title={`已标注: ${entity.total - entity.waiting} / 未标注: ${entity.waiting}  / 总数: ${entity.total}`}>
+                  <Progress
+                    type="circle"
+                    size={50}
+                    percent={Math.ceil((entity.total - entity.waiting) / entity.total * 100)}
+                    success={{ percent: Math.ceil((entity.total - entity.waiting) / entity.total * 100) }}
+                  />
+              </Tooltip>
             )
         },
         {
@@ -99,7 +117,7 @@ const DataTagging = () => {
                     更新
                 </a>,
                 <a key="link2">停止</a>,
-                <a key="link3">复制</a>,
+                <a key="link3">标注</a>,
                 <TableDropdown
                   key="actionGroup"
                   menus={[

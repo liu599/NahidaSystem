@@ -21,8 +21,16 @@ export async function getTaggingSetting(
   })
 }
 
+export async function createTaggingSetting(
+  data: any,
+){
+  return await customRequest.post('/napi-prod/llm/tagging_task', {
+    ...data,
+  })
+}
+
 export async function getCasesBySuite(
-    suiteId: number,
+    suiteId: number | string,
     pageNumber: number,
     pageSize: number,
 ){
@@ -39,7 +47,7 @@ export async function getCasesBySuite(
 }
 
 export async function getSuite(
-    suiteId: number
+    suiteId: number | string
 ){
   return await customRequest.post('/napi-prod/llm/source_search', {
     sourceType: 'suite',
