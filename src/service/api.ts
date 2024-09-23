@@ -76,5 +76,21 @@ export async function getTag(
   })
 }
 
+export async function getCase(
+  filter: object = {},
+  pageNumber: number,
+  pageSize: number,
+) {
+  return await customRequest.post('/napi-prod/llm/source_search', {
+    sourceType: 'case',
+    filter,
+    pager: {
+      pageNumber,
+      pageSize
+    }
+  })
+}
+
+
 
 

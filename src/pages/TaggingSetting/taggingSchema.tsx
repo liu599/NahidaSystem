@@ -81,6 +81,7 @@ export const schema: ISchema = {
               maxTagTextLength: 12,
               showSearch: true,
               multiple: true,
+              changeOnSelect: true,
               style: {
                 width: 240,
               },
@@ -95,6 +96,21 @@ export const schema: ISchema = {
             'x-component-props': {
               style: {
                 width: 240,
+              },
+            },
+          },
+          multiple: {
+            type: 'string',
+            title: '允许选多个标签',
+            enum: [
+              { label: '是', value: 1 },
+              { label: '否', value: 2 },
+            ],
+            'x-decorator': 'FormItem',
+            'x-component': 'Select',
+            'x-component-props': {
+              style: {
+                width: 80,
               },
             },
           },

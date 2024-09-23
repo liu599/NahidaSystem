@@ -25,6 +25,7 @@ import {Button, Divider, Modal} from "antd";
 import {createSchemaField, FormProvider} from "@formily/react";
 import {useNavigate, useSearchParams} from 'react-router-dom'
 import {divide} from "lodash-es";
+import {createTree} from "@/utils";
 const SchemaField = createSchemaField({
   components: {
     FormItem,
@@ -48,34 +49,6 @@ const SchemaField = createSchemaField({
 })
 
 // http://localhost:9549/taggingSetting?sid=47&uid=247
-const createTree = (arr) => {
-  // 创建一个 Map 对象来存储 id 和对象的关系
-  const map = new Map();
-  const tree = [];
-
-  // 遍历数组，将每个对象存储到 map 中，并设置它们的 children 属性为空数组
-  arr.forEach(item => {
-    item.value = item.id
-    item.label = item.tagName
-    map.set(item.id, {...item, children: []});
-  });
-
-  // 再次遍历数组，这次是为了建立父子关系
-  arr.forEach(item => {
-    // 如果 item 有 parentId，则将 item 添加到对应父项的 children 数组中
-    if (item.parentId !== undefined && item.parentId !== null && item.parentId !== 0) {
-      const parent = map.get(item.parentId);
-      if (parent) {
-        parent.children.push(map.get(item.id));
-      }
-    } else {
-      // 如果没有 parentId，则认为是根节点，添加到 tree 中
-      tree.push(map.get(item.id));
-    }
-  });
-
-  return tree;
-}
 
 const TaggingSetting: React.FC =  () => {
   const navigate = useNavigate()
@@ -124,7 +97,7 @@ const TaggingSetting: React.FC =  () => {
 
   useEffect(() => {
     getTag({}, 1, 10000).then(r => {
-      console.log(r?.data?.data)
+      // console.log(r?.data?.data)
       setTags(r?.data?.data)
     })
     getCasesBySuite(sid, 1, 1).then(r => {

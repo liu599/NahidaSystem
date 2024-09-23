@@ -60,6 +60,9 @@ const BaseLayout = () => {
                         console.log(collapsed, type);
                         setCollapsed(collapsed)
                     }}
+                    style={{
+                        color: '#f2f2f2'
+                    }}
                 >
                     <div className="demo-logo-vertical" />
                     <div className="flex h-auto items-center justify-center p-2 text-xl">
