@@ -1,68 +1,61 @@
-import {Button, Col, Divider, Form, Row, Select, Space, Tag, Typography} from 'antd';
+import {Button, CascaderProps, Col, Divider, Form, Row, Space, Tag, Typography} from 'antd';
 import {useEffect, useState} from "react";
 import {getCase, getTag, getTaggingSetting} from "@/service/api.ts";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import {createTree, flattenArr} from "@/utils";
+import {createTree, filterTreeByPaths, findSubarrays} from "@/utils";
 import {Cascader} from "@formily/antd-v5";
+
 const { Title, Paragraph, Text, Link } = Typography;
 
-const formItemLayout = {
-    labelCol: { span: 4 },
-    wrapperCol: { span: 16 },
-};
+interface Option {
+    value: string | number;
+    label: string;
+    children?: Option[];
+    disableCheckbox?: boolean;
+}
 
-
-
-const data = [
+const options: Option[] = [
     {
-        label: "标签组1",
-        type: "multiple",
-        options: [
-            {
-                value: "标签1",
-                label: <span>标签1</span>
-            },
-            {
-                value: "标签2",
-                label: <span>标签2</span>
-            }
-        ]
+        label: 'Light',
+        value: 'light',
+        children: new Array(20)
+          .fill(null)
+          .map((_, index) => ({ label: `Number ${index}`, value: index })),
     },
     {
-        label: "标签组2",
-        type: "multiple",
-        options: [
+        label: 'Bamboo',
+        value: 'bamboo',
+        children: [
             {
-                value: "标签3",
-                label: <span>标签3</span>
+                label: 'Little',
+                value: 'little',
+                children: [
+                    {
+                        label: 'Toy Fish',
+                        value: 'fish',
+                        disableCheckbox: true,
+                    },
+                    {
+                        label: 'Toy Cards',
+                        value: 'cards',
+                    },
+                    {
+                        label: 'Toy Bird',
+                        value: 'bird',
+                    },
+                ],
             },
-            {
-                value: "标签4",
-                label: <span>标签4</span>
-            }
-        ]
+        ],
     },
-    {
-        label: "标签组3",
-        type: "single",
-        options: [
-            {
-                value: "标签5",
-                label: <span>标签5</span>
-            },
-            {
-                value: "标签6",
-                label: <span>标签6</span>
-            }
-        ]
-    }
-]
+];
 
 const Tagging =  () => {
     const [caseContent, setCaseContent] = useState({})
     const [currentTaggingTask, setCurrentTaggingTask] = useState({})
     const [parentTaggingTask, setParentTaggingTask] = useState({})
+    const [tagGroupMap, setTagGroupMap] = useState({})
     const [allTags, setAllTags] = useState([])
+    const [tagTree, setTagTree] = useState([])
     const [form] = Form.useForm();
     const navigate = useNavigate()
     const [params] = useSearchParams()
@@ -126,11 +119,22 @@ const Tagging =  () => {
         if (parentTaggingTask.hasOwnProperty('option')) {
             const TaggingOptions = JSON.parse(parentTaggingTask.option)
 
+            // 多选时ID为主ID但是后续选项其实不是选择了所有, 只是代表了出现的选项, 需要记忆主ID与后续的关系
+            // 采用的办法是每个group存储一个map记忆主id与所有的选项的映射：
+            const wholeOptionMap = {}
             TaggingOptions.forEach(toption => {
-                const rawIds = flattenArr(toption.tagId)
-                toption.rawOptions = allTags.filter(t => rawIds.includes(t.id))
-                toption.optionTree = createTree(toption.rawOptions)
+                allTags.forEach(t => {
+                    t.groupName = toption.tagGroupName
+                })
+                const tagTree = createTree(allTags)
+                // const rawIds = flattenArr(toption.tagId)
+                // toption.rawOptions = allTags.filter(t => rawIds.includes(t.id))
+                // toption.optionTree = createTree(toption.rawOptions)
+                toption.optionTree = filterTreeByPaths(tagTree, toption.tagId)
+                wholeOptionMap[toption.tagGroupName] = toption.tagId
             })
+            setTagGroupMap(wholeOptionMap)
+
             console.log(TaggingOptions)
             setTaggingOptions(TaggingOptions)
         }
@@ -142,6 +146,34 @@ const Tagging =  () => {
 
     const onFill = () => {
         form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
+    };
+
+
+
+    const onChange: CascaderProps<Option>['onChange'] = (value, selectedOptions) => {
+
+        let tagMap = []
+        if (selectedOptions[0]) {
+            tagMap = tagGroupMap[selectedOptions[0][0].groupName]
+        } else {
+            return
+        }
+        console.log(value)
+        console.log(tagMap)
+        let readyToAdd = []
+        for (let v of value) {
+            if (findSubarrays(tagMap, v)[0]) {
+                for(let r of findSubarrays(tagMap, v)) {
+                    readyToAdd.push(r[r.length-1])
+                }
+            } else {
+                readyToAdd.push(v[v.length-1])
+            }
+            // let lastElement = v[v.length - 1]
+            // let lastTag = allTags.find(item => item.id === lastElement)
+            // console.log(lastTag)
+        }
+        console.log(readyToAdd)
     };
 
     const generateOption = (data, chunkSize = 2) => {
@@ -160,7 +192,8 @@ const Tagging =  () => {
                             <Cascader
                               style={{ width: '100%' }}
                               options={item.optionTree}
-                              // onChange={onChange}
+                              // options={options}
+                              onChange={onChange}
                               multiple
                               changeOnSelect
                               maxTagCount="responsive"
