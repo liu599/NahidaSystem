@@ -92,5 +92,15 @@ export async function getCase(
 }
 
 
+export async function updateCase(
+    tagIds: Array<number>,
+    id: number,
+) {
+    return await customRequest.put('/napi-prod/llm/case', {
+      method: 'tags',
+      tagIds: tagIds,
+      id,
+    })
+}
 
 

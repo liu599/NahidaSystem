@@ -14,41 +14,6 @@ interface Option {
     disableCheckbox?: boolean;
 }
 
-const options: Option[] = [
-    {
-        label: 'Light',
-        value: 'light',
-        children: new Array(20)
-          .fill(null)
-          .map((_, index) => ({ label: `Number ${index}`, value: index })),
-    },
-    {
-        label: 'Bamboo',
-        value: 'bamboo',
-        children: [
-            {
-                label: 'Little',
-                value: 'little',
-                children: [
-                    {
-                        label: 'Toy Fish',
-                        value: 'fish',
-                        disableCheckbox: true,
-                    },
-                    {
-                        label: 'Toy Cards',
-                        value: 'cards',
-                    },
-                    {
-                        label: 'Toy Bird',
-                        value: 'bird',
-                    },
-                ],
-            },
-        ],
-    },
-];
-
 const Tagging =  () => {
     const [caseContent, setCaseContent] = useState({})
     const [currentTaggingTask, setCurrentTaggingTask] = useState({})
@@ -56,13 +21,15 @@ const Tagging =  () => {
     const [tagGroupMap, setTagGroupMap] = useState({})
     const [allTags, setAllTags] = useState([])
     const [tagTree, setTagTree] = useState([])
-    const [form] = Form.useForm();
+    const [form] = Form.useForm()
     const navigate = useNavigate()
     const [params] = useSearchParams()
     const taggingTaskId = params.get('tid')
     const taggingParentTaskId = params.get('pid')
     const caseId = params.get('cid')
     const [taggingOptions, setTaggingOptions] = useState([])
+    const [currentTags, setCurrentTags] = useState([])
+    const [tagsReadyToSubmit, setTagsReadyToSubmit] = useState([])
 
 
     useEffect(() => {
@@ -75,15 +42,12 @@ const Tagging =  () => {
         }, 1, 1).then(r => {
             console.log(r?.data?.data[0])
             const caseContent = r?.data?.data[0]
-            // const caseTagIds = r?.data?.data[0].tags.map((item, index) => {
-            //     return {
-            //         key: index,
-            //         id: item.id,
-            //         tagName: item.tagName,
-            //     }
-            // })
+            const caseTagIds = r?.data?.data[0].tags.map((item, index) => {
+                return item.id
+            })
             // caseContent.tagIds = caseTagIds
             setCaseContent(caseContent)
+            setCurrentTags(caseTagIds)
         })
         getTaggingSetting({
             'id': parseInt(taggingTaskId, 10)
@@ -173,8 +137,14 @@ const Tagging =  () => {
             // let lastTag = allTags.find(item => item.id === lastElement)
             // console.log(lastTag)
         }
+        console.log(currentTags)
         console.log(readyToAdd)
+        setTagsReadyToSubmit([...new Set([...currentTags, ...readyToAdd])])
     };
+
+    const onSubmit = () => {
+        console.log(tagsReadyToSubmit)
+    }
 
     const generateOption = (data, chunkSize = 2) => {
         const chunks = [];
@@ -297,7 +267,7 @@ const Tagging =  () => {
                                 <Button type="primary" htmlType="submit" size="middle">
                                     上一条数据
                                 </Button>
-                                <Button type="primary" htmlType="submit" size="middle">
+                                <Button type="primary" htmlType="submit" onClick={onSubmit}  size="middle">
                                     下一条数据
                                 </Button>
                                 <Button type="link" htmlType="button" onClick={onFill} size="middle">
