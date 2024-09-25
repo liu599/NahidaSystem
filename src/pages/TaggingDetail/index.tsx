@@ -28,7 +28,7 @@ const Tagging =  () => {
     const taggingParentTaskId = params.get('pid')
     const caseId = params.get('cid')
     const [taggingOptions, setTaggingOptions] = useState([])
-    const [currentTags, setCurrentTags] = useState([])
+    const [currentTags, setCurrentTags] = useState({})
     const [tagsReadyToSubmit, setTagsReadyToSubmit] = useState([])
 
 
@@ -124,6 +124,7 @@ const Tagging =  () => {
         }
         console.log(value)
         console.log(tagMap)
+        let currentTagMap = {}
         let readyToAdd = []
         for (let v of value) {
             if (findSubarrays(tagMap, v)[0]) {
@@ -137,13 +138,17 @@ const Tagging =  () => {
             // let lastTag = allTags.find(item => item.id === lastElement)
             // console.log(lastTag)
         }
-        console.log(currentTags)
-        console.log(readyToAdd)
-        setTagsReadyToSubmit([...new Set([...currentTags, ...readyToAdd])])
+        currentTagMap[selectedOptions[0][0].groupName] = readyToAdd
+        setCurrentTags(Object.assign({}, currentTags, currentTagMap))
+
+        console.log(currentTagMap)
+        // setTagsReadyToSubmit([...new Set([...currentTags, ...readyToAdd])])
+
     };
 
     const onSubmit = () => {
         console.log(tagsReadyToSubmit)
+        console.log(currentTags)
     }
 
     const generateOption = (data, chunkSize = 2) => {
