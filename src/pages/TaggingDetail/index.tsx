@@ -103,7 +103,7 @@ const Tagging =  () => {
 
     useEffect(() => {
         console.log('currentTaggingTask', currentTaggingTask)
-        if (currentTaggingTask.hasOwnProperty('taskContent')) {
+        if (currentTaggingTask && currentTaggingTask.hasOwnProperty('taskContent')) {
             if (currentTaggingTask.taskContent === 'major task') {
                 return
             }
@@ -116,7 +116,7 @@ const Tagging =  () => {
 
     useEffect(() => {
         console.log('parentTaggingTask', parentTaggingTask)
-        if (parentTaggingTask.hasOwnProperty('option')) {
+        if (parentTaggingTask && parentTaggingTask.hasOwnProperty('option')) {
             const TaggingOptions = JSON.parse(parentTaggingTask.option)
 
             // 多选时ID为主ID但是后续选项其实不是选择了所有, 只是代表了出现的选项, 需要记忆主ID与后续的关系
@@ -194,7 +194,7 @@ const Tagging =  () => {
                               options={item.optionTree}
                               // options={options}
                               onChange={onChange}
-                              multiple
+                              multiple={item.multiple}
                               changeOnSelect
                               maxTagCount="responsive"
                             />
@@ -218,10 +218,18 @@ const Tagging =  () => {
 
     if (!parentTaggingTask) {
         console.log('parentTaggingTask', parentTaggingTask)
-        return <div>loading..</div>
+        return (<div>
+            <span>无法找到标注任务, 链接不正确...p_p....</span>
+        </div>)
     }
 
     if (currentTaggingTask && currentTaggingTask.taskIndex === -1) {
+        return (<div>
+            <span>无法找到标注任务, 链接不正确...p_p....</span>
+        </div>)
+    }
+
+    if (!caseContent) {
         return (<div>
             <span>无法找到标注任务, 链接不正确...p_p....</span>
         </div>)
@@ -253,6 +261,7 @@ const Tagging =  () => {
                         <Paragraph>
                             {caseContent.answer}
                         </Paragraph>
+                        <Title level={5}>已有标签</Title>
                         <Paragraph>
                             {
                                 caseContent.tags && caseContent.tags.map(item => {
