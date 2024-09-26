@@ -93,13 +93,13 @@ export async function getCase(
 
 
 export async function updateCase(
-    tagIds: Array<number>,
-    id: number,
+  tagIds: unknown[],
+  id: number | string,
 ) {
     return await customRequest.put('/napi-prod/llm/case', {
       method: 'tags',
       tagIds: tagIds,
-      id,
+      id: parseInt(<string>id, 10),
     })
 }
 

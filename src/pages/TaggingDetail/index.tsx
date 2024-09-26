@@ -1,9 +1,10 @@
 import {Button, CascaderProps, Col, Divider, Form, Row, Space, Tag, Typography} from 'antd';
 import {useEffect, useState} from "react";
-import {getCase, getTag, getTaggingSetting} from "@/service/api.ts";
+import {getCase, getTag, getTaggingSetting, updateCase} from "@/service/api.ts";
 import {useNavigate, useSearchParams} from "react-router-dom";
 import {createTree, filterTreeByPaths, findSubarrays} from "@/utils";
 import {Cascader} from "@formily/antd-v5";
+import {flatten, indexOf} from "lodash-es";
 
 const { Title, Paragraph, Text, Link } = Typography;
 
@@ -29,7 +30,8 @@ const Tagging =  () => {
     const caseId = params.get('cid')
     const [taggingOptions, setTaggingOptions] = useState([])
     const [currentTags, setCurrentTags] = useState({})
-    const [tagsReadyToSubmit, setTagsReadyToSubmit] = useState([])
+    const [nextCase, setNextCase] = useState(-1)
+    const [prevCase, setPrevCase] = useState(-1)
 
 
     useEffect(() => {
@@ -47,7 +49,9 @@ const Tagging =  () => {
             })
             // caseContent.tagIds = caseTagIds
             setCaseContent(caseContent)
-            setCurrentTags(caseTagIds)
+            setCurrentTags({
+                originalTags: caseTagIds,
+            })
         })
         getTaggingSetting({
             'id': parseInt(taggingTaskId, 10)
@@ -71,8 +75,19 @@ const Tagging =  () => {
             if (currentTaggingTask.taskContent === 'major task') {
                 return
             }
+
             currentTaggingTask.taskAll = JSON.parse(currentTaggingTask.taskContent)
             currentTaggingTask.taskIndex = currentTaggingTask.taskAll.indexOf(parseInt(caseId, 10))
+            if (currentTaggingTask.taskIndex === currentTaggingTask.taskAll.length - 1) {
+                setNextCase(-1)
+                setPrevCase(currentTaggingTask.taskIndex - 1)
+            } else if (currentTaggingTask.taskIndex === 0) {
+                setNextCase(currentTaggingTask.taskIndex + 1)
+                setPrevCase(-1)
+            } else {
+                setNextCase(currentTaggingTask.taskIndex + 1)
+                setPrevCase(currentTaggingTask.taskIndex - 1)
+            }
         }
 
 
@@ -117,13 +132,10 @@ const Tagging =  () => {
     const onChange: CascaderProps<Option>['onChange'] = (value, selectedOptions) => {
 
         let tagMap = []
-        if (selectedOptions[0]) {
-            tagMap = tagGroupMap[selectedOptions[0][0].groupName]
-        } else {
+        if (!selectedOptions[0]) {
             return
         }
-        console.log(value)
-        console.log(tagMap)
+        tagMap = tagGroupMap[selectedOptions[0][0].groupName]
         let currentTagMap = {}
         let readyToAdd = []
         for (let v of value) {
@@ -146,9 +158,25 @@ const Tagging =  () => {
 
     };
 
-    const onSubmit = () => {
-        console.log(tagsReadyToSubmit)
-        console.log(currentTags)
+    const onSubmit = (clickType) => {
+        const newTags = [...new Set([...Object.values(currentTags).flat(Infinity)])]
+        console.log(newTags)
+        updateCase(
+          newTags,
+          caseId
+        ).then(() => {
+            let nextId = 0
+            if (clickType === 'prev') {
+                console.log(currentTaggingTask.taskAll[prevCase])
+                nextId = currentTaggingTask.taskAll[prevCase]
+            } else if (clickType === 'next') {
+                console.log(currentTaggingTask.taskAll[nextCase])
+                nextId = currentTaggingTask.taskAll[nextCase]
+            }
+            navigate(`taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`)
+        })
+
+
     }
 
     const generateOption = (data, chunkSize = 2) => {
@@ -250,6 +278,7 @@ const Tagging =  () => {
                     </Typography>
                 </Col>
                 <Col span={16}>
+                    <Title level={5}>标注标签</Title>
                     <Form
                       name="validate_other"
                       form={form}
@@ -266,18 +295,23 @@ const Tagging =  () => {
                     <Row style={{textAlign: "center"}}>
                         <Col span={24}>
                             <Space size="large">
+
+                                {
+                                    nextCase === -1 ? <Button type="primary" htmlType="submit" onClick={() => onSubmit('prev')} size="middle">
+                                        上一条数据
+                                    </Button> : null
+                                }
+                                {
+                                    prevCase === -1 ? <Button type="primary" htmlType="submit" onClick={() => onSubmit('next')}  size="middle">
+                                        下一条数据
+                                    </Button> : null
+                                }
                                 <Button htmlType="button" onClick={onReset} danger size="middle">
                                     重置
                                 </Button>
-                                <Button type="primary" htmlType="submit" size="middle">
-                                    上一条数据
-                                </Button>
-                                <Button type="primary" htmlType="submit" onClick={onSubmit}  size="middle">
-                                    下一条数据
-                                </Button>
-                                <Button type="link" htmlType="button" onClick={onFill} size="middle">
-                                    (智能填充)
-                                </Button>
+                                {/*<Button type="link" htmlType="button" onClick={onFill} size="middle">*/}
+                                {/*    (智能填充)*/}
+                                {/*</Button>*/}
                             </Space>
                         </Col>
                     </Row>

@@ -79,12 +79,12 @@ export const filterTreeByPaths = (tree, paths) => {
 
         // 当前路径的第一个元素是要找的子节点的 id
         const idToFind = path[0];
-        console.log(idToFind)
+        // console.log(idToFind)
         if (!node.children) return null;
 
         // 在 children 中找到 id 匹配的子节点
         const childNode = node.children.find(child => child.id === idToFind);
-        console.log(childNode)
+        // console.log(childNode)
         if (!childNode) return null;
 
         // 递归地找下一个节点
@@ -132,11 +132,11 @@ export const filterTreeByPaths = (tree, paths) => {
         if (!Array.isArray(path)) {
             result = tree.find(item => item.id === path)
             keyName = `_${path}`
-            console.log(result, ' find path')
+            // console.log(result, ' find path')
         } else {
             keyName = `_${path[0]}`
             result = findPath(tree.find(item => item.id === path[0]), path.slice(1));
-            console.log(result, ' find path')
+            // console.log(result, ' find path')
         }
         if (result) {
             if (filteredTree[keyName]) {
