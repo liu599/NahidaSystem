@@ -161,6 +161,7 @@ const Tagging =  () => {
         const newTags = [...new Set([...Object.values(currentTags).flat(Infinity)])]
         console.log(currentTags)
         console.log(newTags)
+        return
         updateCase(
           newTags,
           caseId
@@ -184,7 +185,7 @@ const Tagging =  () => {
               taggingParentTaskId,
               taggingTaskId,
             ).then(() => {
-                window.location.replace(`/taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`)
+                // window.location.replace(`/taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`)
             })
             //
 
@@ -322,7 +323,7 @@ const Tagging =  () => {
                         </Paragraph>
                     </Typography>
                 </Col>
-                <Col span={16}>
+                <Col span={16} style={{paddingLeft: 100}}>
                     <Title level={5}>已有标签</Title>
                     <Paragraph>
                         {
