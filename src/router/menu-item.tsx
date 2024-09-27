@@ -24,20 +24,20 @@ export const MENU_ITEMS: ({ minRole: number; children: any[]; icon: JSX.Element;
         children: undefined,
         minRole: 1,
     },
-    {
-        key: '/taggingDetail',
-        label: '标注任务详情',
-        icon: <CoffeeOutlined />,
-        children: undefined,
-        minRole: 1,
-    },
-    {
-        key: '/agent-hub',
-        label: '大模型agent',
-        icon: <CoffeeOutlined />,
-        children: undefined,
-        minRole: 1,
-    }
+    // {
+    //     key: '/taggingDetail',
+    //     label: '标注任务详情',
+    //     icon: <CoffeeOutlined />,
+    //     children: undefined,
+    //     minRole: 1,
+    // },
+    // {
+    //     key: '/agent-hub',
+    //     label: '大模型agent',
+    //     icon: <CoffeeOutlined />,
+    //     children: undefined,
+    //     minRole: 1,
+    // }
 ]
 
 export const filterMenuItemsByRole = (menuItems: MenuItem[], roles: Role[]): MenuItem[] => {

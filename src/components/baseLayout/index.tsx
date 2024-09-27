@@ -3,6 +3,7 @@ const { Header, Footer, Sider, Content } = Layout;
 import { Outlet, To, useLocation, useNavigate } from 'react-router-dom'
 import { MENU_ITEMS } from "@/router/menu-item.tsx";
 import React, {useState} from "react";
+import { history } from 'umi';
 
 const footerStyle: React.CSSProperties = {
     textAlign: 'center',

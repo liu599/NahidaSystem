@@ -1,10 +1,9 @@
 import {Button, CascaderProps, Col, Divider, Form, Row, Space, Tag, Typography} from 'antd';
 import {useEffect, useState} from "react";
-import {getCase, getTag, getTaggingSetting, updateCase} from "@/service/api.ts";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import {getCase, getTag, getTaggingSetting, taggingCase, updateCase} from "@/service/api.ts";
+import {useNavigate, useSearchParams, Router} from "react-router-dom";
 import {createTree, filterTreeByPaths, findSubarrays} from "@/utils";
 import {Cascader} from "@formily/antd-v5";
-import {flatten, indexOf} from "lodash-es";
 
 const { Title, Paragraph, Text, Link } = Typography;
 
@@ -42,27 +41,23 @@ const Tagging =  () => {
         getCase({
             'id': parseInt(caseId, 10)
         }, 1, 1).then(r => {
-            console.log(r?.data?.data[0])
+            // console.log(r?.data?.data[0])
             const caseContent = r?.data?.data[0]
-            const caseTagIds = r?.data?.data[0].tags.map((item, index) => {
-                return item.id
-            })
+
             // caseContent.tagIds = caseTagIds
             setCaseContent(caseContent)
-            setCurrentTags({
-                originalTags: caseTagIds,
-            })
+
         })
         getTaggingSetting({
             'id': parseInt(taggingTaskId, 10)
         }, 1, 1).then(r => {
-            console.log(r)
+            // console.log(r)
             setCurrentTaggingTask(r?.data?.data[0])
         }).then(r => {
             getTaggingSetting({
                 'id': parseInt(taggingParentTaskId, 10)
             }, 1, 1).then(r => {
-                console.log(r?.data?.data[0])
+                // console.log(r?.data?.data[0])
                 setParentTaggingTask(r?.data?.data[0])
             })
         })
@@ -70,15 +65,15 @@ const Tagging =  () => {
     }, []);
 
     useEffect(() => {
-        console.log('currentTaggingTask', currentTaggingTask)
         if (currentTaggingTask && currentTaggingTask.hasOwnProperty('taskContent')) {
             if (currentTaggingTask.taskContent === 'major task') {
                 return
             }
-
+            // console.log('currentTaggingTask', currentTaggingTask)
             currentTaggingTask.taskAll = JSON.parse(currentTaggingTask.taskContent)
             currentTaggingTask.taskIndex = currentTaggingTask.taskAll.indexOf(parseInt(caseId, 10))
-            if (currentTaggingTask.taskIndex === currentTaggingTask.taskAll.length - 1) {
+
+            if (currentTaggingTask && currentTaggingTask.taskIndex && currentTaggingTask.taskIndex === currentTaggingTask.taskAll.length - 1) {
                 setNextCase(-1)
                 setPrevCase(currentTaggingTask.taskIndex - 1)
             } else if (currentTaggingTask.taskIndex === 0) {
@@ -90,17 +85,16 @@ const Tagging =  () => {
             }
         }
 
-
     }, [currentTaggingTask]);
 
     useEffect(() => {
-        console.log('parentTaggingTask', parentTaggingTask)
+        // console.log('parentTaggingTask', parentTaggingTask)
         if (parentTaggingTask && parentTaggingTask.hasOwnProperty('option')) {
             const TaggingOptions = JSON.parse(parentTaggingTask.option)
-
+            console.log(TaggingOptions)
             // 多选时ID为主ID但是后续选项其实不是选择了所有, 只是代表了出现的选项, 需要记忆主ID与后续的关系
             // 采用的办法是每个group存储一个map记忆主id与所有的选项的映射：
-            const wholeOptionMap = {}
+            const tagGroupMap = {}
             TaggingOptions.forEach(toption => {
                 allTags.forEach(t => {
                     t.groupName = toption.tagGroupName
@@ -109,12 +103,19 @@ const Tagging =  () => {
                 // const rawIds = flattenArr(toption.tagId)
                 // toption.rawOptions = allTags.filter(t => rawIds.includes(t.id))
                 // toption.optionTree = createTree(toption.rawOptions)
+                console.log(toption.tagId)
                 toption.optionTree = filterTreeByPaths(tagTree, toption.tagId)
-                wholeOptionMap[toption.tagGroupName] = toption.tagId
+                tagGroupMap[toption.tagGroupName] = toption.tagId
             })
-            setTagGroupMap(wholeOptionMap)
-
-            console.log(TaggingOptions)
+            setTagGroupMap(tagGroupMap)
+            const caseTagIds = caseContent.tags.filter((item, index) => {
+                return !Object.values(tagGroupMap).flat(Infinity).includes(item.id)
+            })
+            setCurrentTags({
+                originalTags: caseTagIds.map(item => [item.id]),
+                ...tagGroupMap,
+            })
+            // console.log(TaggingOptions)
             setTaggingOptions(TaggingOptions)
         }
     }, [parentTaggingTask]);
@@ -152,31 +153,85 @@ const Tagging =  () => {
         }
         currentTagMap[selectedOptions[0][0].groupName] = readyToAdd
         setCurrentTags(Object.assign({}, currentTags, currentTagMap))
-
-        console.log(currentTagMap)
         // setTagsReadyToSubmit([...new Set([...currentTags, ...readyToAdd])])
 
     };
 
     const onSubmit = (clickType) => {
         const newTags = [...new Set([...Object.values(currentTags).flat(Infinity)])]
+        console.log(currentTags)
         console.log(newTags)
         updateCase(
           newTags,
           caseId
         ).then(() => {
             let nextId = 0
+
+            let idx = currentTaggingTask.taskAll.indexOf(parseInt(caseId, 10))
+            // if (idx === currentTaggingTask.taskAll.length - 1 || idx === 0) {
+            //     return
+            // }
             if (clickType === 'prev') {
                 console.log(currentTaggingTask.taskAll[prevCase])
-                nextId = currentTaggingTask.taskAll[prevCase]
+                nextId = currentTaggingTask.taskAll[idx-1]
             } else if (clickType === 'next') {
+                console.log(nextCase)
                 console.log(currentTaggingTask.taskAll[nextCase])
-                nextId = currentTaggingTask.taskAll[nextCase]
+                nextId = currentTaggingTask.taskAll[idx+1]
             }
-            navigate(`taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`)
+            taggingCase(
+              caseId,
+              taggingParentTaskId,
+              taggingTaskId,
+            ).then(() => {
+                window.location.replace(`/taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`)
+            })
+            //
+
+            // navigate(`/taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`, {
+            //     replace: true
+            //     // state: {
+            //     //     tid: taggingTaskId,
+            //     //     pid: taggingParentTaskId,
+            //     //     cid: nextId
+            //     // }
+            // })
         })
+    }
+
+    const intersectArrays = (arr1, arr2) => {
+        // 创建一个 Set 来存储结果，保证唯一性
+        const resultSet = new Set();
+
+        // 遍历第一个数组中的每一个子数组
+        arr1.forEach(subArr1 => {
+            // 检查第二个数组中是否存在相同的子数组
+            if (
+              arr2.some(
+                subArr2 => (JSON.stringify(subArr1) === JSON.stringify(subArr2))
+              )
+            ) {
+                // 添加到结果集中
+                resultSet.add(JSON.stringify(subArr1)); // 使用 JSON 字符串化来处理可能的顺序问题
+            }
+        });
+
+        // 将 Set 转换回数组
+        return Array.from(resultSet).map(str => JSON.parse(str));
+    }
 
 
+    const obtainCurrentTags = (tagGroupName) => {
+        // console.log(tagGroupMap[tagGroupName])
+        const myTags = caseContent.tags.reduce((acc, curr) => {
+            const ilink = curr['indexLink'].split('-').filter(Boolean).map(item => parseInt(item, 10))
+            acc.push(ilink)
+            return acc
+        }, [])
+        // console.log(myTags)
+        const myTagSelection = intersectArrays(tagGroupMap[tagGroupName], myTags)
+        // console.log(myTagSelection)
+        return myTagSelection
     }
 
     const generateOption = (data, chunkSize = 2) => {
@@ -195,11 +250,12 @@ const Tagging =  () => {
                             <Cascader
                               style={{ width: '100%' }}
                               options={item.optionTree}
+                              defaultValue={obtainCurrentTags(item.tagGroupName)}
                               // options={options}
                               onChange={onChange}
                               multiple={item.multiple}
                               changeOnSelect
-                              maxTagCount="responsive"
+                              // maxTagCount="responsive"
                             />
                             {/*<Select*/}
                             {/*  mode={item.type === 'single' ? undefined : 'tags'}*/}
@@ -264,20 +320,21 @@ const Tagging =  () => {
                         <Paragraph>
                             {caseContent.answer}
                         </Paragraph>
-                        <Title level={5}>已有标签</Title>
-                        <Paragraph>
-                            {
-                                caseContent.tags && caseContent.tags.map(item => {
-                                    return  <Tag key={item.id}>
-                                        {item.tagName}
-                                    </Tag>
-                                })
-                            }
-                        </Paragraph>
-
                     </Typography>
                 </Col>
                 <Col span={16}>
+                    <Title level={5}>已有标签</Title>
+                    <Paragraph>
+                        {
+                          caseContent.tags && caseContent.tags.map(item => {
+                              const existingOptions = Object.values(tagGroupMap).flat(Infinity)
+                              return !existingOptions.includes(item.id) ?
+                                <Tag key={item.id}>
+                                  {item.tagName}
+                              </Tag> : null
+                          })
+                        }
+                    </Paragraph>
                     <Title level={5}>标注标签</Title>
                     <Form
                       name="validate_other"
@@ -295,14 +352,13 @@ const Tagging =  () => {
                     <Row style={{textAlign: "center"}}>
                         <Col span={24}>
                             <Space size="large">
-
                                 {
-                                    nextCase === -1 ? <Button type="primary" htmlType="submit" onClick={() => onSubmit('prev')} size="middle">
+                                    prevCase !== -1 ? <Button type="primary" htmlType="submit" onClick={() => onSubmit('prev')} size="middle">
                                         上一条数据
                                     </Button> : null
                                 }
                                 {
-                                    prevCase === -1 ? <Button type="primary" htmlType="submit" onClick={() => onSubmit('next')}  size="middle">
+                                    nextCase !== -1 ? <Button type="primary" htmlType="submit" onClick={() => onSubmit('next')}  size="middle">
                                         下一条数据
                                     </Button> : null
                                 }

@@ -9,7 +9,7 @@ const queryClient = new QueryClient()
 const App = () => {
   return (
       <QueryClientProvider client={queryClient}>
-          <Watermark content="Tokei">
+          <Watermark content="Tagging">
               <RouterProvider router={router({routePrefix: '/'})} fallbackElement={<div>Sorry. The page you try to visit not existed.</div>}/>
               <ReactQueryDevtools initialIsOpen/>
           </Watermark>

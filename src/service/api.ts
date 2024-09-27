@@ -99,8 +99,20 @@ export async function updateCase(
     return await customRequest.put('/napi-prod/llm/case', {
       method: 'tags',
       tagIds: tagIds,
+      allowDelete: 1,
       id: parseInt(<string>id, 10),
     })
 }
 
+export async function taggingCase(
+  caseId: string,
+  taggingParentTaskId: string,
+  taggingTaskId: string,
+) {
+  return await customRequest.post('/napi-prod/llm/tagging', {
+    caseId,
+    taggingParentTaskId,
+    taggingTaskId,
+  })
+}
 

@@ -109,15 +109,27 @@ const DataTagging = () => {
             render: (_, entity) => [
                 <a
                   key="link"
+                  disabled={entity.taskContent==='major task'}
                   onClick={() => {
+                      console.log(entity)
+                      const haveLabeledCase = JSON.parse(entity.option)
+                      console.log(haveLabeledCase)
+                      const notLabeledCase = JSON.parse(entity.taskContent)
+                      console.log(notLabeledCase)
+                      if (notLabeledCase.length > 0) {
+                          const taskIndex = notLabeledCase.indexOf(haveLabeledCase[haveLabeledCase.length-1])
+                          console.log(taskIndex)
+                          const nextCase = notLabeledCase[taskIndex + 1]
+                          window.location.replace(`/taggingDetail?tid=${entity.id}&pid=${entity.parentId}&cid=${nextCase}`)
+                      }
+
+
                       setCurrentRow(entity)
                       setShowDetail(true)
                   }}
                 >
-                    更新
+                    标注
                 </a>,
-                <a key="link2">停止</a>,
-                <a key="link3">标注</a>,
                 <TableDropdown
                   key="actionGroup"
                   menus={[
