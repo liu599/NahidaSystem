@@ -2,7 +2,6 @@ import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 // @ts-ignore
 const APP_VERSION = '' + require('./package.json').version
-console.log(APP_VERSION)
 // @ts-ignore
 const now = new Date()
 const year = now.getFullYear().toString().slice(-2) // 取最后两位年份
@@ -16,28 +15,38 @@ let BUILD_DATE = `${year}${month}${day}`
 console.log(BUILD_ENV)
 console.log(APP_VERSION)
 console.log(BUILD_DATE)
-
 export default defineConfig({
   html: {
-    title: 'Nahida System',
+    title: '数据标注系统',
   },
   dev: {
-    assetPrefix: true,
+    // assetPrefix: true,
   },
   source: {
     alias: {
       '@': './src',
     },
     define: {
-      APP_VERSION: `${APP_VERSION}`,
-      BUILD_DATE: BUILD_DATE,
-      BUILD_ENV: `${BUILD_ENV}`,
+      APP_VERSION: JSON.stringify(`${APP_VERSION}`),
+      BUILD_DATE: JSON.stringify(BUILD_DATE),
+      BUILD_ENV: JSON.stringify(`${BUILD_ENV}`),
     },
   },
   server: {
     proxy: {
-      '/napi-prod/llm': 'http://127.0.0.1:8991',
+      '/napi-prod/llm': {
+        target: 'http://10.151.3.26:8991',
+        pathRewrite: {
+          '^/napi-prod/llm': ''
+        }
+      },
     },
   },
+  // output: {
+  //   distPath: {
+  //     root: 'tagging',
+  //   },
+  //   assetPrefix: '/tagging',
+  // },
   plugins: [pluginReact()],
 });

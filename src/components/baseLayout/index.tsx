@@ -67,7 +67,7 @@ const BaseLayout = () => {
                 >
                     <div className="demo-logo-vertical" />
                     <div className="flex h-auto items-center justify-center p-2 text-xl">
-                        {!collapsed ? 'Nahida System' : ''}
+                        {!collapsed ? 'Tagging' : ''}
                     </div>
                     <Menu
                         theme="dark"
@@ -93,7 +93,7 @@ const BaseLayout = () => {
                     <Footer style={footerStyle}>
                         Nahida System for LLM ©{new Date().getFullYear()} Created by Tokei.
                         <span>
-                            {BUILD_DATE}
+                            {BUILD_DATE}.{BUILD_ENV}.{APP_VERSION}
                         </span>
                     </Footer>
                 </Layout>

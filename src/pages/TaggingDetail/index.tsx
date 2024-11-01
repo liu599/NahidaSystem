@@ -113,7 +113,6 @@ const Tagging =  () => {
             })
             setCurrentTags({
                 originalTags: caseTagIds.map(item => [item.id]),
-                ...tagGroupMap,
             })
             // console.log(TaggingOptions)
             setTaggingOptions(TaggingOptions)
@@ -131,9 +130,15 @@ const Tagging =  () => {
 
 
     const onChange: CascaderProps<Option>['onChange'] = (value, selectedOptions) => {
-
+        console.log('onChange')
         let tagMap = []
         if (!selectedOptions[0]) {
+            const caseTagIds = caseContent.tags.filter((item, index) => {
+                return !Object.values(tagGroupMap).flat(Infinity).includes(item.id)
+            })
+            setCurrentTags({
+                originalTags: caseTagIds.map(item => [item.id]),
+            })
             return
         }
         tagMap = tagGroupMap[selectedOptions[0][0].groupName]
