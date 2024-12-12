@@ -164,9 +164,6 @@ const Tagging =  () => {
 
     const onSubmit = (clickType) => {
         const newTags = [...new Set([...Object.values(currentTags).flat(Infinity)])]
-        console.log(currentTags)
-        console.log(newTags)
-        return
         updateCase(
           newTags,
           caseId
@@ -190,7 +187,7 @@ const Tagging =  () => {
               taggingParentTaskId,
               taggingTaskId,
             ).then(() => {
-                // window.location.replace(`/taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`)
+                window.location.replace(`/taggingDetail?tid=${taggingTaskId}&pid=${taggingParentTaskId}&cid=${nextId}`)
             })
             //
 
